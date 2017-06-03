@@ -10,25 +10,23 @@ import pandas as pd
 # url_1 = 'file:///C:/cool/hello.txt'
 # url_2 = 'file:///C:/Users/vishal/PycharmProjects/scrape_hangouts/hangouts_scrape/hangouts_scrape/spiders/frame2.htm'
 
-team_a_5_7_730p = 'file:///C:/Users/vishal/PycharmProjects/scrape_hangouts/hangouts_scrape/hangouts_scrape/spiders' \
-                  '/TEAM_A_5_10_730p.htm '
-team_b_5_7_730p = 'file:///C:/Users/vishal/PycharmProjects/scrape_hangouts/hangouts_scrape/hangouts_scrape/spiders' \
-                  '/TEAM_B_5_10_730p.htm '
+file_name = '04-05-8p-C'
+file_to_read = 'file:///C:/Users/vishal/PycharmProjects/scrape_hangouts/hangouts_scrape/hangouts_scrape/spiders' \
+                '/TEAM_C_4_5_8p.htm'
 
-team_a_3_17_12p = 'file:///C:/Users/vishal/PycharmProjects/scrape_hangouts/hangouts_scrape/hangouts_scrape/spiders' \
-                  '/TEAM_A_3_17_12p.htm '
-
-team_b_3_17_12p = 'file:///C:/Users/vishal/PycharmProjects/scrape_hangouts/hangouts_scrape/hangouts_scrape/spiders' \
-                  '/TEAM_B_3_17_12p.htm '
-
-team_c_3_17_12p = 'file:///C:/Users/vishal/PycharmProjects/scrape_hangouts/hangouts_scrape/hangouts_scrape/spiders' \
-                  '/TEAM_C_3_17_12p.htm '
-
+# team_a_5_7_730p = 'file:///C:/Users/vishal/PycharmProjects/scrape_hangouts/hangouts_scrape/hangouts_scrape/spiders' \
+#                   '/TEAM_A_5_10_730p.htm '
+# team_b_5_7_730p = 'file:///C:/Users/vishal/PycharmProjects/scrape_hangouts/hangouts_scrape/hangouts_scrape/spiders' \
+#                   '/TEAM_B_5_10_730p.htm '
+#
+# team_a_3_17_12p = 'file:///C:/Users/vishal/PycharmProjects/scrape_hangouts/hangouts_scrape/hangouts_scrape/spiders' \
+#                   '/TEAM_A_3_17_12p.htm '
+#
+# team_b_3_17_12p = 'file:///C:/Users/vishal/PycharmProjects/scrape_hangouts/hangouts_scrape/hangouts_scrape/spiders' \
+#                   '/TEAM_B_3_17_12p.htm '
 
 # response = urllib.urlopen(team_a_5_7_730p)
 # print(response.read())
-
-
 # path_name = 'C:\Users\vishal\PycharmProjects\scrape_hangouts\hangouts_scrape\hangouts_scrape\spiders\frame2.htm'
 
 
@@ -41,7 +39,7 @@ class HangoutSpider(scrapy.Spider):
     #     for url in urls:
     #         yield scrapy.Request(url=url, callback=self.parse)
 
-    start_urls = [team_a_3_17_12p]
+    start_urls = [file_to_read]
 
     def parse(self, response):
 
@@ -72,7 +70,12 @@ class HangoutSpider(scrapy.Spider):
 
         for i in range(0, my_len):
 
-            speech_temp = x[i].re('left;">(.*)</span>')[0]
+            extract_speech = x[i].re('left;">(.*)</span>')
+
+            if not extract_speech == []:
+                speech_temp = extract_speech[0]
+            else:
+                speech_temp = x[i].re('left;">(.*)')[0]
 
             if not speech_temp.find('<br>') == -1:
                 speech_temp = re.sub('<br>', ". ", speech_temp)
@@ -100,6 +103,8 @@ class HangoutSpider(scrapy.Spider):
                 "Participant": participant_temp,
             }
 
+            # if not speech_temp.find('\xa0') == -1:
+
             final.append({participant_temp: speech_temp})
 
             # print(final.items())
@@ -120,22 +125,22 @@ class HangoutSpider(scrapy.Spider):
 
         for s in sticker_list:
             final.append(s)
-        print(final)
-        print("DAB==================================DAB")
+        # print(final)
+        # print("DAB==================================DAB")
         list_again = list()
         for f in final:
             for k, v in f.items():
                 # print (k, v)
                 list_again.append((k, v))
 
-        print(list_again)
-
+        # print(list_again)
         # list_again.encode("utf-8")
 
         df = pd.DataFrame(list_again)
         # df.encode("utf-8")
         # df.columns("Participant", "Speech")
-        df.to_csv('test_123.csv', encoding='utf-8', index=False)
+        df.columns = ['Speech', 'Participant']
+        df.to_csv(file_name+'.csv', encoding='utf-8', index=False)
 
 # ''
 # ""
