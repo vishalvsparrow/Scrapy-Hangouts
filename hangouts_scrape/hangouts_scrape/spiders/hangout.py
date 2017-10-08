@@ -10,25 +10,9 @@ import pandas as pd
 # url_1 = 'file:///C:/cool/hello.txt'
 # url_2 = 'file:///C:/Users/vishal/PycharmProjects/scrape_hangouts/hangouts_scrape/hangouts_scrape/spiders/frame2.htm'
 
-file_name = '04-05-8p-C'
+file_name = '03-17-12p-A'
 file_to_read = 'file:///C:/Users/vishal/PycharmProjects/scrape_hangouts/hangouts_scrape/hangouts_scrape/spiders' \
-                '/TEAM_C_4_5_8p.htm'
-
-# team_a_5_7_730p = 'file:///C:/Users/vishal/PycharmProjects/scrape_hangouts/hangouts_scrape/hangouts_scrape/spiders' \
-#                   '/TEAM_A_5_10_730p.htm '
-# team_b_5_7_730p = 'file:///C:/Users/vishal/PycharmProjects/scrape_hangouts/hangouts_scrape/hangouts_scrape/spiders' \
-#                   '/TEAM_B_5_10_730p.htm '
-#
-# team_a_3_17_12p = 'file:///C:/Users/vishal/PycharmProjects/scrape_hangouts/hangouts_scrape/hangouts_scrape/spiders' \
-#                   '/TEAM_A_3_17_12p.htm '
-#
-# team_b_3_17_12p = 'file:///C:/Users/vishal/PycharmProjects/scrape_hangouts/hangouts_scrape/hangouts_scrape/spiders' \
-#                   '/TEAM_B_3_17_12p.htm '
-
-# response = urllib.urlopen(team_a_5_7_730p)
-# print(response.read())
-# path_name = 'C:\Users\vishal\PycharmProjects\scrape_hangouts\hangouts_scrape\hangouts_scrape\spiders\frame2.htm'
-
+                '/TEAM_A_3_17_12p.htm'
 
 class HangoutSpider(scrapy.Spider):
     name = "hangout"
@@ -54,15 +38,20 @@ class HangoutSpider(scrapy.Spider):
         sticker_list = list()
 
         if not find_stickers == []:
-            print("##################################################")
+            temp_resp_path = response.xpath('//div[@class = "ZDX4qc"]')
             for i in range(0, len(find_stickers)):
-                print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
                 sticker_pname = re.findall('title="(.*)"\sstyle', find_stickers[i])[0]
                 stick_temp = re.findall('Team\s(.*)\sParticipant\s(\S)', sticker_pname)[0]
                 sticker_pname = ''.join(str(i) for i in stick_temp)
-                sticker_name = response.xpath('//div[@class = "ZDX4qc"]')[i].extract()
-                sticker_name = re.findall('<img\s.*(Callouts_.*).png"', sticker_name)[0]
-                sticker_list.append({sticker_pname: sticker_name})
+                # print(response.xpath('//div[@class = "ZDX4qc"]')[2].extract())
+                sticker_name = temp_resp_path[i].extract()
+                # print(sticker_name)
+                # sticker_name = response.xpath('//div[@class = "ZDX4qc"]')[i].extract()
+                sticker_name_temp = re.findall('<img\s.*/(.*).png" class="', sticker_name)[0]
+                print(sticker_name_temp)
+                sticker_list.append({sticker_pname: sticker_name_temp})
+                # sticker_name_temp = None
+
 
         my_len = len(x)
 
@@ -89,14 +78,15 @@ class HangoutSpider(scrapy.Spider):
             participant = re.findall(']\s(\S.*)\s[(]', a[i].extract())[0]
 
             if participant.find('Study-Facilitator A') == -1:
-                participant_temp = re.findall('Team\s(.*)\sParticipant\s(\S)', participant)[0]
-                participant_temp = ''.join(str(i) for i in participant_temp)
+                if not re.findall('Team\s(.*)\sParticipant\s(\S)', participant) == []:
+                    participant_temp = re.findall('Team\s(.*)\sParticipant\s(\S)', participant)[0]
+                    participant_temp = ''.join(str(i) for i in participant_temp)
+                else:
+                    # The team must be TEAM D
+                    participant_temp = re.findall('Team(.*)\sParticipant(\S*)', participant)[0]
+                    participant_temp = ''.join(str(i) for i in participant_temp)
             else:
                 participant_temp = participant
-
-            # a1.append(speech_temp)
-            # b1.append(participant)
-            # print(a1,b1)
 
             yield {
                 "Speech": speech_temp,
@@ -142,9 +132,7 @@ class HangoutSpider(scrapy.Spider):
         df.columns = ['Speech', 'Participant']
         df.to_csv(file_name+'.csv', encoding='utf-8', index=False)
 
-# ''
-# ""
-
+## Notes:
 # >>> x = response.xpath('//span[@class = "tL8wMe EMoHub"]') # speech
 # lWfe2d
 # response.xpath('//span[@class = "lWfe2d"]/text()') # participant
