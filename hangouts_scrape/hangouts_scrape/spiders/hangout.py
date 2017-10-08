@@ -7,12 +7,8 @@ import pandas as pd
 # files = os.listdir(os.getcwd())
 # print(files[0])
 
-# url_1 = 'file:///C:/cool/hello.txt'
-# url_2 = 'file:///C:/Users/vishal/PycharmProjects/scrape_hangouts/hangouts_scrape/hangouts_scrape/spiders/frame2.htm'
-
 file_name = '03-17-12p-A'
-file_to_read = 'file:///C:/Users/vishal/PycharmProjects/scrape_hangouts/hangouts_scrape/hangouts_scrape/spiders' \
-                '/TEAM_A_3_17_12p.htm'
+file_to_read = 'file:///C:/TEAM_A_3_17_12p.htm'
 
 class HangoutSpider(scrapy.Spider):
     name = "hangout"
